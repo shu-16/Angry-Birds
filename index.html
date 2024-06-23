@@ -74,7 +74,7 @@
             });
 
             // Repeat the melody
-            setTimeout(playBGM, currentTime - audioContext.currentTime);
+            setTimeout(playBGM, (currentTime - audioContext.currentTime) * 1000);
         }
 
         playBGM();
@@ -198,7 +198,7 @@
                     if (collision(player, { ...obstacle, width: obstacleWidth, height: obstacleHeight })) {
                         if (!player.poweredUp) {
                             gameOver = true;
-                            playSE(110, 0.3);  // Play game over sound
+                            playSE(110, 0.08);  // Play game over sound
                         }
                     }
                 });
@@ -208,7 +208,7 @@
                     if (collision(player, { ...powerUp, width: powerUpSize, height: powerUpSize })) {
                         powerUps.splice(index, 1);
                         applyPowerUp(powerUp.type);
-                        playSE(880, 0.1);  // Play power-up sound
+                        playSE(880, 0.08);  // Play power-up sound
                     }
                 });
 
@@ -216,9 +216,9 @@
                 if (player.y + player.height > canvas.height || player.y < 0) {
                     if (player.outOfBoundsTime === 0) {
                         player.outOfBoundsTime = timestamp;
-                    } else if (timestamp - player.outOfBoundsTime > 100) { // 0.1 seconds
+                    } else if (timestamp - player.outOfBoundsTime > 200) { // 0.2 seconds
                         gameOver = true;
-                        playSE(110, 0.3);  // Play game over sound
+                        playSE(110, 0.08);  // Play game over sound
                     }
                 } else {
                     player.outOfBoundsTime = 0;
@@ -260,5 +260,4 @@
                     ctx.fillStyle = 'blue';
                 } else if (powerUp.type === 'shield') {
                     ctx.fillStyle = 'green';
-                } else if (powerUp.type === 'score') {
-                    ctx.fillStyle = 'purple';
+                }
