@@ -77,6 +77,7 @@
             setTimeout(playBGM, (currentTime - audioContext.currentTime) * 1000);
         }
 
+        // Start BGM
         playBGM();
 
         // Sound effects
@@ -260,4 +261,5 @@
                     ctx.fillStyle = 'blue';
                 } else if (powerUp.type === 'shield') {
                     ctx.fillStyle = 'green';
-                }
+                } else if (powerUp.type === 'score') {
+                    ctx.fillStyle = 'purple';
