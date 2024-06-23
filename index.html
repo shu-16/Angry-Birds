@@ -47,7 +47,8 @@
             height: 30,
             dy: 0,
             gravity: 0.5,
-            lift: -10
+            lift: -10,
+            poweredUp: false
         };
 
         // Obstacles
@@ -56,9 +57,15 @@
         const obstacleHeight = 100;
         const obstacleSpeed = 3;
 
+        // Power-ups
+        let powerUps = [];
+        const powerUpSize = 20;
+        const powerUpTypes = ['speed', 'shield', 'score'];
+
         // Game state
         let score = 0;
         let gameOver = false;
+        let powerUpDuration = 0;
 
         // Game loop
         function gameLoop() {
@@ -84,6 +91,16 @@
                     });
                 }
 
+                // Generate new power-ups
+                if (Math.random() < 0.01) {
+                    const type = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
+                    powerUps.push({
+                        x: canvas.width,
+                        y: Math.random() * (canvas.height - powerUpSize),
+                        type: type
+                    });
+                }
+
                 // Move obstacles
                 obstacles.forEach((obstacle, index) => {
                     obstacle.x -= obstacleSpeed;
@@ -93,19 +110,42 @@
                     }
                 });
 
+                // Move power-ups
+                powerUps.forEach((powerUp, index) => {
+                    powerUp.x -= obstacleSpeed;
+                    if (powerUp.x + powerUpSize < 0) {
+                        powerUps.splice(index, 1);
+                    }
+                });
+
                 // Collision detection
                 obstacles.forEach(obstacle => {
-                    if (player.x < obstacle.x + obstacleWidth &&
-                        player.x + player.width > obstacle.x &&
-                        player.y < obstacle.y + obstacleHeight &&
-                        player.y + player.height > obstacle.y) {
-                        gameOver = true;
+                    if (collision(player, obstacle)) {
+                        if (!player.poweredUp) {
+                            gameOver = true;
+                        }
+                    }
+                });
+
+                // Power-up collision detection
+                powerUps.forEach((powerUp, index) => {
+                    if (collision(player, powerUp)) {
+                        powerUps.splice(index, 1);
+                        applyPowerUp(powerUp.type);
                     }
                 });
 
                 // Prevent player from going off screen
                 if (player.y + player.height > canvas.height || player.y < 0) {
                     gameOver = true;
+                }
+
+                // Power-up duration countdown
+                if (powerUpDuration > 0) {
+                    powerUpDuration--;
+                    if (powerUpDuration === 0) {
+                        player.poweredUp = false;
+                    }
                 }
             }
         }
@@ -125,6 +165,18 @@
             ctx.fillStyle = 'red';
             obstacles.forEach(obstacle => {
                 ctx.fillRect(obstacle.x, obstacle.y, obstacleWidth, obstacleHeight);
+            });
+
+            // Draw power-ups
+            powerUps.forEach(powerUp => {
+                if (powerUp.type === 'speed') {
+                    ctx.fillStyle = 'blue';
+                } else if (powerUp.type === 'shield') {
+                    ctx.fillStyle = 'green';
+                } else if (powerUp.type === 'score') {
+                    ctx.fillStyle = 'purple';
+                }
+                ctx.fillRect(powerUp.x, powerUp.y, powerUpSize, powerUpSize);
             });
 
             // Draw score
@@ -170,12 +222,39 @@
                 height: 30,
                 dy: 0,
                 gravity: 0.5,
-                lift: -10
+                lift: -10,
+                poweredUp: false
             };
             obstacles = [];
+            powerUps = [];
             score = 0;
             gameOver = false;
+            powerUpDuration = 0;
             gameLoop();
+        }
+
+        // Collision detection function with buffer
+        function collision(a, b) {
+            const buffer = 5; // Increase buffer for less sensitive collision detection
+            return a.x < b.x + b.width - buffer &&
+                   a.x + a.width - buffer > b.x &&
+                   a.y < b.y + b.height - buffer &&
+                   a.y + a.height - buffer > b.y;
+        }
+
+        // Apply power-up function
+        function applyPowerUp(type) {
+            if (type === 'speed') {
+                player.gravity = 0.25;
+                player.lift = -15;
+                powerUpDuration = 300; // Power-up lasts for 300 frames
+                player.poweredUp = true;
+            } else if (type === 'shield') {
+                player.poweredUp = true;
+                powerUpDuration = 300; // Power-up lasts for 300 frames
+            } else if (type === 'score') {
+                score += 10; // Immediate score boost
+            }
         }
 
         // Game start
