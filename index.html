@@ -138,8 +138,8 @@
                     }
                 });
 
-                // Prevent player from going off screen
-                if (player.y + player.height > canvas.height || player.y < 0) {
+                // Prevent player from going off screen with buffer for top and bottom
+                if (player.y + player.height > canvas.height + 5 || player.y < -5) {
                     gameOver = true;
                 }
 
@@ -238,13 +238,12 @@
             gameLoop();
         }
 
-        // Collision detection function with buffer
+        // Collision detection function without buffer for obstacles and power-ups
         function collision(a, b) {
-            const buffer = 5; // Increase buffer for less sensitive collision detection
-            return a.x < b.x + b.width - buffer &&
-                   a.x + a.width - buffer > b.x &&
-                   a.y < b.y + b.height - buffer &&
-                   a.y + a.height - buffer > b.y;
+            return a.x < b.x + b.width &&
+                   a.x + a.width > b.x &&
+                   a.y < b.y + b.height &&
+                   a.y + a.height > b.y;
         }
 
         // Apply power-up function
