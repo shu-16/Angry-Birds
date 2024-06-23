@@ -61,6 +61,7 @@
         let powerUps = [];
         const powerUpSize = 20;
         const powerUpTypes = ['speed', 'shield', 'score'];
+        let powerUpCounter = 0;  // Counter for power-up timing
 
         // Game state
         let score = 0;
@@ -91,8 +92,10 @@
                     });
                 }
 
-                // Generate new power-ups
-                if (Math.random() < 0.01) {
+                // Generate new power-ups every 30 seconds approximately
+                powerUpCounter++;
+                if (powerUpCounter > 1800) {  // Assuming 60 frames per second, 60 * 30 = 1800
+                    powerUpCounter = 0;
                     const type = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
                     powerUps.push({
                         x: canvas.width,
@@ -145,6 +148,8 @@
                     powerUpDuration--;
                     if (powerUpDuration === 0) {
                         player.poweredUp = false;
+                        player.gravity = 0.5;
+                        player.lift = -10;
                     }
                 }
             }
